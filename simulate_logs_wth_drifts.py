@@ -50,6 +50,6 @@ if __name__ == '__main__':
     net1, im1, fm1 = pnml_importer.apply(os.path.join(folder, 'model1.pnml'))
     net2, im2, fm2 = pnml_importer.apply(os.path.join(folder, 'model2.pnml'))
     intervals = [10, 10, 10, 10]
-    generate_log_with_drifts(net1, im1, fm1, net2, im2, fm2, intervals, drift_folder, 'drift_log_teste')
+    generate_log_with_drifts(net1, im1, fm1, net2, im2, fm2, intervals, drift_folder, 'drift_log_10')
     intervals = [100, 50, 200, 350]
-    generate_log_with_drifts(net1, im1, fm1, net2, im2, fm2, intervals, drift_folder, 'drift_log_teste2')
+    generate_log_with_drifts(net1, im1, fm1, net2, im2, fm2, intervals, drift_folder, 'drift_log_variavel')

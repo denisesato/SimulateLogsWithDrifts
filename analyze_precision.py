@@ -6,7 +6,12 @@ from pm4py.algo.discovery.inductive import algorithm as inductive_miner
 from pm4py.visualization.petri_net import visualizer as pn_visualizer
 from pm4py.algo.evaluation.precision import algorithm as precision_evaluator
 from pm4py.objects.petri_net.exporter import exporter as pnml_exporter
-
+from pm4py.objects.petri_net.importer import importer as pnml_importer
+from pm4py.objects.log.importer.xes import importer as xes_importer
+from pm4py.objects.log.obj import EventLog
+from pm4py.algo.discovery.footprints import algorithm as fp_discovery
+from pm4py.algo.discovery.inductive import algorithm as inductive_miner
+from pm4py.algo.conformance.footprints.util import evaluation
 
 def create_sample_event_log1(output_folder, filename):
     eventlog1 = [
@@ -89,9 +94,9 @@ def discover_model(folder, filename, output_filename):
     parameters = {inductive_miner.Variants.IM.value.Parameters.ACTIVITY_KEY: 'Activity'}
     net, im, fm = inductive_miner.apply(event_log, parameters=parameters)
     gviz = pn_visualizer.apply(net, im, fm)
-    model_filename = os.path.join(output_folder, f'{output_filename}.png')
+    model_filename = os.path.join(folder, f'{output_filename}.png')
     pn_visualizer.save(gviz, model_filename)
-    pn_filename = os.path.join(output_folder, f'{output_filename}.pnml')
+    pn_filename = os.path.join(folder, f'{output_filename}.pnml')
     pnml_exporter.apply(net, im, pn_filename, final_marking=fm)
     return net, im, fm
 
@@ -104,8 +109,7 @@ def calculate_precision(net, im, fm, traces):
                                               parameters=parameters)
         print(f'Trace {i + 1} - {precision}')
 
-
-if __name__ == '__main__':
+def analyze_precisionETC():
     output_folder = os.path.join('data', 'output')
 
     # create 2 sample logs
@@ -138,3 +142,33 @@ if __name__ == '__main__':
     # calculate precision of the second model using the two allowed traces
     print("Precision of model 1 - using traces from model 2")
     calculate_precision(net1, im1, fm1, traces_model2)
+
+
+def analyze_precisionFP():
+    folder = os.path.join('data', 'output')
+    # get the first model, the one that allows trace [a,d]
+    net1, im1, fm1 = pnml_importer.apply(os.path.join(folder, 'model1.pnml'))
+    # import the log with drift
+    folder_logs = os.path.join(folder, 'drift')
+    logname = 'drift_log_10.xes'
+    filename = os.path.join(folder_logs, logname)
+    variant = xes_importer.Variants.ITERPARSE
+    parameters = {variant.value.Parameters.TIMESTAMP_SORT: True}
+    log = xes_importer.apply(filename, variant=variant, parameters=parameters)
+
+    first_log = EventLog(log[0:10])
+    tree = inductive_miner.apply_tree(first_log)
+    fp_log = fp_discovery.apply(first_log, variant=fp_discovery.Variants.ENTIRE_EVENT_LOG)
+    fp_tree = fp_discovery.apply(tree, variant=fp_discovery.Variants.PROCESS_TREE)
+    precision = evaluation.fp_precision(fp_log, fp_tree)
+    print(f'Precision [0-10] - first model: {precision}')
+
+    second_log = EventLog(log[10:20])
+    fp_log = fp_discovery.apply(second_log, variant=fp_discovery.Variants.ENTIRE_EVENT_LOG)
+    fp_tree = fp_discovery.apply(tree, variant=fp_discovery.Variants.PROCESS_TREE)
+    precision = evaluation.fp_precision(fp_log, fp_tree)
+    print(f'Precision [10-20] - first model: {precision}')
+
+if __name__ == '__main__':
+    # analyze_precisionETC()
+    analyze_precisionFP()
