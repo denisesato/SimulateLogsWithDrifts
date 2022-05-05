@@ -2,10 +2,7 @@ import pandas as pd
 import os
 from pm4py.objects.log.util import dataframe_utils
 from pm4py.objects.conversion.log import converter as log_converter
-from pm4py.algo.discovery.inductive import algorithm as inductive_miner
-from pm4py.visualization.petri_net import visualizer as pn_visualizer
 from pm4py.algo.evaluation.precision import algorithm as precision_evaluator
-from pm4py.objects.petri_net.exporter import exporter as pnml_exporter
 from pm4py.objects.petri_net.importer import importer as pnml_importer
 from pm4py.objects.log.importer.xes import importer as xes_importer
 from pm4py.objects.log.obj import EventLog
@@ -13,36 +10,7 @@ from pm4py.algo.discovery.footprints import algorithm as fp_discovery
 from pm4py.algo.discovery.inductive import algorithm as inductive_miner
 from pm4py.algo.conformance.footprints.util import evaluation
 
-def create_sample_event_log1(output_folder, filename):
-    eventlog1 = [
-        [1, 'a', '2002-04-21 10:00:00'],
-        [2, 'a', '2002-04-21 10:20:00'],
-        [1, 'b', '2002-04-21 11:00:00'],
-        [2, 'c', '2002-04-21 11:00:00'],
-        [1, 'd', '2002-04-21 11:20:00'],
-        [3, 'a', '2002-04-21 11:20:00'],
-        [2, 'd', '2002-04-21 13:40:00'],
-        [3, 'd', '2002-04-21 15:00:00'],
-    ]
-    df = pd.DataFrame(eventlog1, columns=['Case id', 'Activity', 'Timestamp'])
-    if not os.path.exists(output_folder):
-        os.makedirs(output_folder)
-    df.to_csv(os.path.join(output_folder, filename), index=False)
-
-
-def create_sample_event_log2(output_folder, filename):
-    eventlog2 = [
-        [1, 'a', '2002-04-21 10:00:00'],
-        [2, 'a', '2002-04-21 10:20:00'],
-        [1, 'b', '2002-04-21 11:00:00'],
-        [2, 'c', '2002-04-21 11:00:00'],
-        [1, 'd', '2002-04-21 11:20:00'],
-        [2, 'd', '2002-04-21 13:40:00'],
-    ]
-    df = pd.DataFrame(eventlog2, columns=['Case id', 'Activity', 'Timestamp'])
-    if not os.path.exists(output_folder):
-        os.makedirs(output_folder)
-    df.to_csv(os.path.join(output_folder, filename), index=False)
+from create_sample1 import create_sample_event_log1, create_sample_event_log2, discover_model
 
 
 def trace1_as_eventlog():
@@ -80,27 +48,6 @@ def convert_trace_to_eventlog(trace):
     return event_log
 
 
-def discover_model(folder, filename, output_filename):
-    complete_filename = os.path.join(folder, filename)
-    log_csv = pd.read_csv(complete_filename, sep=',')
-    log_csv = dataframe_utils.convert_timestamp_columns_in_df(log_csv)
-    log_csv = log_csv.sort_values('Timestamp')
-    parameters = {log_converter.Variants.TO_EVENT_LOG.value.Parameters.CASE_ID_KEY: 'Case id'}
-    event_log = log_converter.apply(log_csv, parameters=parameters, variant=log_converter.Variants.TO_EVENT_LOG)
-    # for trace in event_log:
-    #     for ev in trace:
-    #         print(f'[{trace.attributes["concept:name"]}] - {ev}')
-
-    parameters = {inductive_miner.Variants.IM.value.Parameters.ACTIVITY_KEY: 'Activity'}
-    net, im, fm = inductive_miner.apply(event_log, parameters=parameters)
-    gviz = pn_visualizer.apply(net, im, fm)
-    model_filename = os.path.join(folder, f'{output_filename}.png')
-    pn_visualizer.save(gviz, model_filename)
-    pn_filename = os.path.join(folder, f'{output_filename}.pnml')
-    pnml_exporter.apply(net, im, pn_filename, final_marking=fm)
-    return net, im, fm
-
-
 def calculate_precision(net, im, fm, traces):
     parameters = {precision_evaluator.Variants.ETCONFORMANCE_TOKEN.value.Parameters.ACTIVITY_KEY: 'Activity'}
     for i, eventlog in enumerate(traces):
@@ -108,6 +55,7 @@ def calculate_precision(net, im, fm, traces):
                                               variant=precision_evaluator.Variants.ETCONFORMANCE_TOKEN,
                                               parameters=parameters)
         print(f'Trace {i + 1} - {precision}')
+
 
 def analyze_precisionETC():
     output_folder = os.path.join('data', 'output')
@@ -168,6 +116,7 @@ def analyze_precisionFP():
     fp_tree = fp_discovery.apply(tree, variant=fp_discovery.Variants.PROCESS_TREE)
     precision = evaluation.fp_precision(fp_log, fp_tree)
     print(f'Precision [10-20] - first model: {precision}')
+
 
 if __name__ == '__main__':
     # analyze_precisionETC()
