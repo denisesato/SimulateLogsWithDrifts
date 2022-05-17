@@ -13,6 +13,7 @@ from pm4py.algo.discovery.footprints import algorithm as fp_discovery
 from pm4py.algo.discovery.inductive import algorithm as inductive_miner
 from pm4py.algo.conformance.footprints.util import evaluation
 
+
 def create_sample_event_log1(output_folder, filename):
     eventlog1 = [
         [1, 'a', '2002-04-21 10:00:00'],
@@ -109,6 +110,7 @@ def calculate_precision(net, im, fm, traces):
                                               parameters=parameters)
         print(f'Trace {i + 1} - {precision}')
 
+
 def analyze_precisionETC():
     output_folder = os.path.join('data', 'output')
 
@@ -168,6 +170,7 @@ def analyze_precisionFP():
     fp_tree = fp_discovery.apply(tree, variant=fp_discovery.Variants.PROCESS_TREE)
     precision = evaluation.fp_precision(fp_log, fp_tree)
     print(f'Precision [10-20] - first model: {precision}')
+
 
 if __name__ == '__main__':
     # analyze_precisionETC()
