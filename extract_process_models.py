@@ -1,6 +1,8 @@
 from pm4py.objects.log.importer.xes import importer as xes_importer
 from pm4py.algo.discovery.inductive import algorithm as inductive_miner
+from pm4py.algo.discovery.heuristics import algorithm as heuristics_miner
 from pm4py.objects.log.util import interval_lifecycle
+from pm4py.objects.petri_net.importer import importer as pnml_importer
 from pm4py.objects.petri_net.exporter import exporter as pnml_exporter
 from pm4py.visualization.petri_net import visualizer as pn_visualizer
 from pm4py.visualization.bpmn import visualizer as bpmn_visualizer
@@ -27,7 +29,8 @@ def extract_process_models(path, logname, pattern, interval, number_of_processes
         initial = i * interval
         sublog = EventLog(log[initial:initial + interval])
         net, initial_marking, final_marking = inductive_miner.apply(sublog)
-        tree = discover_process_tree_inductive(sublog)
+        # net, initial_marking, final_marking = heuristics_miner.apply(log, parameters={
+        #     heuristics_miner.Variants.CLASSIC.value.Parameters.DEPENDENCY_THRESH: 0.99})
 
         model_name = f'{pattern}{i + 1}'
 
@@ -39,6 +42,14 @@ def extract_process_models(path, logname, pattern, interval, number_of_processes
                             final_marking=final_marking)
         gviz = pn_visualizer.apply(net, initial_marking, final_marking)
         pn_visualizer.save(gviz, os.path.join(output_path, f'{model_name}.png'))
+
+
+def get_new_model_cb():
+    path = 'data/output/models'
+    pn_filename = 'cb2.pnml'
+    net1, im1, fm1 = pnml_importer.apply(os.path.join(path, pn_filename))
+    gviz = pn_visualizer.apply(net1, im1, fm1)
+    pn_visualizer.save(gviz, os.path.join(path, f'cb2_atualizado.png'))
 
 
 if __name__ == '__main__':
@@ -88,3 +99,5 @@ if __name__ == '__main__':
 
     for l, pt in zip(lognames5000, patterns):
         extract_process_models(input_folder, l, pt, 500, 2)
+
+    get_new_model_cb()

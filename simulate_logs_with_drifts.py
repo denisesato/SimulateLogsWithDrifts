@@ -45,11 +45,49 @@ def generate_log_with_drifts(net1, im1, fm1, net2, im2, fm2, intervals, out_fold
 
 
 if __name__ == '__main__':
-    folder = os.path.join('data', 'output')
-    drift_folder = os.path.join('data', 'output', 'drift')
-    net1, im1, fm1 = pnml_importer.apply(os.path.join(folder, 'model1.pnml'))
-    net2, im2, fm2 = pnml_importer.apply(os.path.join(folder, 'model2.pnml'))
+    # folder = os.path.join('data', 'output')
+    # drift_folder = os.path.join('data', 'output', 'drift')
+    # net1, im1, fm1 = pnml_importer.apply(os.path.join(folder, 'model1.pnml'))
+    # net2, im2, fm2 = pnml_importer.apply(os.path.join(folder, 'model2.pnml'))
     # intervals = [10, 10, 10, 10]
     # generate_log_with_drifts(net1, im1, fm1, net2, im2, fm2, intervals, drift_folder, 'drift_log_10')
-    intervals = [20, 20]
-    generate_log_with_drifts(net1, im1, fm1, net2, im2, fm2, intervals, drift_folder, 'log_2drifts_intervalo20')
+    # intervals = [20, 20]
+    # generate_log_with_drifts(net1, im1, fm1, net2, im2, fm2, intervals, drift_folder, 'log_2drifts_intervalo20')
+    folder = 'data/output/models'
+    drift_folder = 'data/output/drift/dataset2'
+    patterns = [
+        'cb',
+        'cd',
+        'cf',
+        'cm',
+        # 'cp', not used because the original model have duplicated activities
+        # 'fr', not used because it does not affect the model structure
+        'IOR',
+        # 'IRO', not used because the original model have duplicated activities
+        'lp',
+        'OIR',
+        'ORI',
+        'pl',
+        'pm',
+        're',
+        # 'RIO', not used because the original model have duplicated activities
+        'ROI',
+        'rp',
+        'sw',
+    ]
+
+    intervals = [
+        [250, 500, 750, 1000, 500], # 3,000 traces (4 drifts)
+        [250, 500, 750, 1000, 750, 500, 250, 500], # 4,500 traces (7 drifts)
+        [250, 500, 750, 1000, 750, 500, 250, 500, 750, 1000, 750, 500, 250, 250],  # 8,000 traces (13 drifts)
+    ]
+
+    size = [
+        '3k', '4.5k', '8k'
+    ]
+
+    for p in patterns:
+        for i, s in zip(intervals, size):
+            net1, im1, fm1 = pnml_importer.apply(os.path.join(folder, f'{p}1.pnml'))
+            net2, im2, fm2 = pnml_importer.apply(os.path.join(folder, f'{p}2.pnml'))
+            generate_log_with_drifts(net1, im1, fm1, net2, im2, fm2, i, drift_folder, f'{p}{s}')
