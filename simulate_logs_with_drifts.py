@@ -52,17 +52,17 @@ def generate_dataset2():
         'cd',
         'cf',
         'cm',
-        # 'cp', not used because the original model have duplicated activities
+        'cp',
         # 'fr', not used because it does not affect the model structure
         'IOR',
-        # 'IRO', not used because the original model have duplicated activities
+        'IRO',
         'lp',
         'OIR',
         'ORI',
         'pl',
         'pm',
         're',
-        # 'RIO', not used because the original model have duplicated activities
+        'RIO',
         'ROI',
         'rp',
         'sw',
@@ -158,4 +158,4 @@ def generate_dataset1_eventlogs_with_problems_in_the_original():
 if __name__ == '__main__':
     # generate_sample_logs()
     generate_dataset2()
-    generate_dataset1_eventlogs_with_problems_in_the_original()
+    # generate_dataset1_eventlogs_with_problems_in_the_original()
