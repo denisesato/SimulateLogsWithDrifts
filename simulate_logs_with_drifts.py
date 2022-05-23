@@ -158,4 +158,4 @@ def generate_dataset1_eventlogs_with_problems_in_the_original():
 if __name__ == '__main__':
     # generate_sample_logs()
     generate_dataset2()
-    # generate_dataset1_eventlogs_with_problems_in_the_original()
+    generate_dataset1_eventlogs_with_problems_in_the_original()
