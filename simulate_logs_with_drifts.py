@@ -1,18 +1,26 @@
 import os
 from pm4py.objects.petri_net.importer import importer as pnml_importer
 from pm4py.algo.simulation.playout.petri_net import algorithm as simulator
+from pm4py.objects.log.util import interval_lifecycle
+from pm4py.util import constants
 from pm4py.objects.log.exporter.xes import exporter as xes_exporter
 from pm4py.objects.log.obj import EventLog
 from datetime import datetime
 
 
 def simulate_log(net1, im1, fm1, i, timestamp, case_id):
-    eventlog = simulator.apply(net1, im1, fm1, variant=simulator.Variants.BASIC_PLAYOUT,
-                               parameters={
-                                   simulator.Variants.BASIC_PLAYOUT.value.Parameters.NO_TRACES: i,
-                                   simulator.Variants.BASIC_PLAYOUT.value.Parameters.INITIAL_TIMESTAMP:
-                                       timestamp,
-                                   simulator.Variants.BASIC_PLAYOUT.value.Parameters.INITIAL_CASE_ID: case_id})
+    log = simulator.apply(net1, im1, fm1, variant=simulator.Variants.BASIC_PLAYOUT,
+                          parameters={
+                              simulator.Variants.BASIC_PLAYOUT.value.Parameters.NO_TRACES: i,
+                              simulator.Variants.BASIC_PLAYOUT.value.Parameters.INITIAL_TIMESTAMP:
+                                  timestamp,
+                              simulator.Variants.BASIC_PLAYOUT.value.Parameters.INITIAL_CASE_ID: case_id})
+
+    # include lifecycle transition because Apromore ProDrift plugin needs it
+    eventlog = interval_lifecycle.to_lifecycle(log,
+                                               parameters={
+                                                   constants.PARAMETER_CONSTANT_START_TIMESTAMP_KEY: "time:timestamp"})
+
     # get the timestamp of the last event
     last_event = eventlog[-1][-1]
     last_datetime = last_event['time:timestamp']
