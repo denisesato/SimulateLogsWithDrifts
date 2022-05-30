@@ -53,7 +53,7 @@ def generate_log_with_drifts(net1, im1, fm1, net2, im2, fm2, intervals, out_fold
 
 
 def generate_dataset2():
-    folder = 'data/output/models'
+    folder = 'data/input/models'
     drift_folder = 'data/output/drift/dataset2'
     patterns = [
         'cb',

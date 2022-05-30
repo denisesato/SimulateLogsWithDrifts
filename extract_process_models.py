@@ -18,7 +18,7 @@ from lxml import etree
 
 
 def extract_process_models(path, logname, pattern, interval, number_of_processes):
-    output_path = 'data//output//models'
+    output_path = 'data/input/models'
     if not os.path.exists(output_path):
         os.makedirs(output_path)
     variant = xes_importer.Variants.ITERPARSE
@@ -49,7 +49,7 @@ def extract_process_models(path, logname, pattern, interval, number_of_processes
 
 
 def get_new_model_cb():
-    path = 'data/output/models'
+    path = 'data/input/models'
     pn_filename = 'cb2.pnml'
     net1, im1, fm1 = pnml_importer.apply(os.path.join(path, pn_filename))
     gviz = pn_visualizer.apply(net1, im1, fm1)
@@ -172,7 +172,7 @@ def create_models_with_duplicated_activities():
     for sp in sink_places:
         final_marking[sp] = 1
 
-    path = 'data/output/models'
+    path = 'data/input/models'
     name = 'cp'
     pnml_exporter.apply(net, initial_marking, os.path.join(path, f'{name}.pnml'), final_marking=final_marking)
     gviz = pn_visualizer.apply(net, initial_marking, final_marking)
@@ -293,7 +293,7 @@ def create_models_with_duplicated_activities():
     for sp in sink_places:
         final_marking[sp] = 1
 
-    path = 'data/output/models'
+    path = 'data/input/models'
     name = 'RIO'
     pnml_exporter.apply(net, initial_marking, os.path.join(path, f'{name}.pnml'), final_marking=final_marking)
     gviz = pn_visualizer.apply(net, initial_marking, final_marking)
@@ -426,7 +426,7 @@ def create_models_with_duplicated_activities():
     for sp in sink_places:
         final_marking[sp] = 1
 
-    path = 'data/output/models'
+    path = 'data/input/models'
     name = 'IRO'
     pnml_exporter.apply(net, initial_marking, os.path.join(path, f'{name}.pnml'), final_marking=final_marking)
     gviz = pn_visualizer.apply(net, initial_marking, final_marking)
